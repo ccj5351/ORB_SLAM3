@@ -14,7 +14,7 @@ def readlines(filename, ignore_chara = '#'):
     lines = [l for l in lines if not l.startswith(ignore_chara)]
     return lines
 
-def prepare_data(img_list_txtfile, dst_dir = './data/wheatstone-sml/images'):
+def prepare_data(img_list_txtfile, dst_dir):
     img_names = readlines(img_list_txtfile)
     img_root = img_names[0]
     os.makedirs(dst_dir, exist_ok=True)
@@ -27,6 +27,45 @@ def prepare_data(img_list_txtfile, dst_dir = './data/wheatstone-sml/images'):
             os.system(f"ln -s {src_img} {dst_img}")
             #os.system(f"cp {src_img} {dst_img}")
             #print(f"ln -s {src_img} {dst_img}")
+
+def run_main(data_root = "./WheatstoneData_nocc/test_team", dst_dir = "./data/WheatstoneData_nocc"):
+    #  '0912-1/2023-09-12-10-33-17'
+    img_paths = glob(pjoin(data_root, '*/*/'))
+    
+    src_dst_folders = {
+        'left_rectified': "image_0", 
+        'right_rectified': "image_1",
+        'raft_stereo_pseudo_gt': "depth_0",
+        }
+    
+    os.makedirs(dst_dir, exist_ok=True)
+    for src_fold, dst_fold in src_dst_folders.items():
+        print (f"mapping {src_fold} to {dst_fold}")
+        for cur_path in img_paths:
+            if src_fold in ['left_rectified', 'right_rectified']:
+                img_names = sorted(
+                    glob(pjoin(cur_path, f"{src_fold}/*.png"))
+                )
+            elif src_fold == 'raft_stereo_pseudo_gt':
+                img_names = sorted(
+                    glob(pjoin(cur_path, f"{src_fold}/*_l_nocc.pfm"))
+                )
+            for idx, img_name in enumerate(img_names):
+                exten = img_name.split(".")[-1]
+                src_img = img_name
+                scan = src_img[len(src_fold):]
+                dst_img = pjoin(dst_dir, scan,  f"{idx:04d}.{exten}")
+                if not os.path.exists(dst_img):
+                    # copy image
+                    os.system(f"ln -s {src_img} {dst_img}")
+                    #os.system(f"cp {src_img} {dst_img}")
+                    #print(f"ln -s {src_img} {dst_img}")
+                    sys.exit()
+            
+
+
+
+    
 
 """
 How to run this file:
@@ -53,7 +92,7 @@ if __name__ == "__main__":
             )
         sys.exit()
     
-    if 1:
+    if 0:
         pose_file = './results/wheatstone/2023-09-12-15-42-56/CameraTrajectory.txt'
         poses = np.loadtxt(pose_file, comments='#').astype(np.float32)
         img_paths = glob('data/wheatstone/2023-09-12-15-42-56/image_0/*.png')
@@ -66,3 +105,9 @@ if __name__ == "__main__":
             pose_cam2world44[:3,:4] = poses[i].reshape(3,4)
             np.savetxt(pose_txtfile, pose_cam2world44)
             #sys.exit()
+    
+    if 1:
+        run_main(
+            data_root = "/nfs/STG/SemanticDenseMapping/data/WheatstoneData_nocc/test_team/", 
+            dst_dir = "./data/WheatstoneData_nocc"
+            )
