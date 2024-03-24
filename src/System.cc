@@ -1213,7 +1213,7 @@ void System::SaveTrajectoryKITTI(const string &filename)
     }
 
     vector<KeyFrame*> vpKFs = mpAtlas->GetAllKeyFrames();
-    sort(vpKFs.begin(),vpKFs.end(),KeyFrame::lId);
+    sort(vpKFs.begin(),vpKFs.end(), KeyFrame::lId);
 
     // Transform all keyframes so that the first keyframe is at the origin.
     // After a loop closure the first keyframe might not be at the origin.
@@ -1222,6 +1222,7 @@ void System::SaveTrajectoryKITTI(const string &filename)
     ofstream f;
     f.open(filename.c_str());
     f << fixed;
+    f << "#timestamp, keyframe, camera-to-world pose" << endl;
 
     // Frame pose is stored relative to its reference keyframe (which is optimized by BA and pose graph).
     // We need to get first the keyframe pose and then concatenate the relative transformation.
@@ -1235,9 +1236,12 @@ void System::SaveTrajectoryKITTI(const string &filename)
         lend=mpTracker->mlRelativeFramePoses.end();lit!=lend;lit++, lRit++, lT++)
     {
         ORB_SLAM3::KeyFrame* pKF = *lRit;
+        //cout << "KF: " << pKF->mnId << endl;
 
         Sophus::SE3f Trw;
 
+        // If the reference keyframe was culled, 
+        // traverse the spanning tree to get a suitable keyframe.
         if(!pKF)
             continue;
 
@@ -1245,8 +1249,9 @@ void System::SaveTrajectoryKITTI(const string &filename)
         {
             Trw = Trw * pKF->mTcp;
             pKF = pKF->GetParent();
+            //cout << "--Parent KF: " << pKF->mnId << endl;
         }
-
+        
         Trw = Trw * pKF->GetPose() * Tow;
 
         Sophus::SE3f Tcw = (*lit) * Trw;
@@ -1254,9 +1259,11 @@ void System::SaveTrajectoryKITTI(const string &filename)
         Eigen::Matrix3f Rwc = Twc.rotationMatrix();
         Eigen::Vector3f twc = Twc.translation();
 
+        //f << *lT << " " << pKF->mnId << endl;
         f << setprecision(9) << Rwc(0,0) << " " << Rwc(0,1)  << " " << Rwc(0,2) << " "  << twc(0) << " " <<
              Rwc(1,0) << " " << Rwc(1,1)  << " " << Rwc(1,2) << " "  << twc(1) << " " <<
              Rwc(2,0) << " " << Rwc(2,1)  << " " << Rwc(2,2) << " "  << twc(2) << endl;
+        //cout << "??? saved " << *lT << endl;
     }
     f.close();
 }
