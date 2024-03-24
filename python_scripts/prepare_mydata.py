@@ -14,6 +14,12 @@ def readlines(filename, ignore_chara = '#'):
     lines = [l for l in lines if not l.startswith(ignore_chara)]
     return lines
 
+def write_to_file(txt_fn, files_list):
+    with open(txt_fn, 'w') as fw:
+        for l in files_list:
+            fw.write(l + "\n")
+    print("Done! Saved {} names to {}".format(len(files_list), txt_fn))
+
 def prepare_data(img_list_txtfile, dst_dir):
     img_names = readlines(img_list_txtfile)
     img_root = img_names[0]
@@ -31,6 +37,7 @@ def prepare_data(img_list_txtfile, dst_dir):
 def run_main(data_root = "./WheatstoneData_nocc/test_team", dst_dir = "./data/WheatstoneData_nocc"):
     #  '0912-1/2023-09-12-10-33-17'
     img_paths = glob(pjoin(data_root, '*/*/'))
+    #img_paths = ['/nfs/STG/SemanticDenseMapping/data/WheatstoneData_nocc/test_team/0912-1/2023-09-12-10-41-17']
     
     src_dst_folders = {
         'left_rectified': "image_0", 
@@ -38,29 +45,62 @@ def run_main(data_root = "./WheatstoneData_nocc/test_team", dst_dir = "./data/Wh
         'raft_stereo_pseudo_gt': "depth_0",
         }
     
-    os.makedirs(dst_dir, exist_ok=True)
-    for src_fold, dst_fold in src_dst_folders.items():
-        print (f"mapping {src_fold} to {dst_fold}")
-        for cur_path in img_paths:
-            if src_fold in ['left_rectified', 'right_rectified']:
-                img_names = sorted(
-                    glob(pjoin(cur_path, f"{src_fold}/*.png"))
-                )
-            elif src_fold == 'raft_stereo_pseudo_gt':
-                img_names = sorted(
-                    glob(pjoin(cur_path, f"{src_fold}/*_l_nocc.pfm"))
-                )
-            for idx, img_name in enumerate(img_names):
-                exten = img_name.split(".")[-1]
-                src_img = img_name
-                scan = src_img[len(src_fold):]
-                dst_img = pjoin(dst_dir, scan,  f"{idx:04d}.{exten}")
+    for cur_path in img_paths:
+            
+        img_names = sorted(
+            glob(pjoin(cur_path, "left_rectified/*.png")),
+            # */left_rectified/294_560943060599_10000000.png, vs */left_rectified/1939_583841230182_10000000.png
+            # to compare "294" vs "1939";
+            key = lambda x : int(os.path.basename(x).split('_')[0])
+            ) 
+        
+        img_names_for_timeStamps = []
+        img_names_maps = []
+ 
+        for idx, img_name in enumerate(img_names):
+            #img_base_name = os.path.basename(img_name)
+            #img_dir_name = os.path.dirname(img_name)
+            exten = "." + img_name.split(".")[-1]
+
+            for src_fold, dst_fold in src_dst_folders.items():
+                if idx == 0:
+                    print (f"mapping {src_fold} to {dst_fold}")
+
+                if src_fold in ['left_rectified', 'right_rectified']:
+                    src_img = img_name.replace("left_rectified", src_fold)
+                    scan = os.path.dirname(src_img[len(data_root):]).replace(src_fold, dst_fold)
+                elif src_fold == 'raft_stereo_pseudo_gt':
+                    src_img = img_name.replace("left_rectified", src_fold).replace(exten, "_l_nocc.pfm" )
+                    exten = "_l_nocc.pfm"
+                    scan = os.path.dirname(src_img[len(data_root):]).replace(src_fold, dst_fold)
+                
+                if idx == 0:
+                    print ("scan = ", scan)
+
+                tmp_dst_dir = pjoin(dst_dir, scan)
+                os.makedirs(tmp_dst_dir, exist_ok=True)
+                dst_img = pjoin(tmp_dst_dir,  f"{idx:04d}{exten}")
+                
+                if src_fold == 'left_rectified':
+                    img_names_for_timeStamps.append(f"{idx:04d}")
+                    img_names_maps.append(f"{idx:04d}, {os.path.basename(src_img)}")
+                
                 if not os.path.exists(dst_img):
                     # copy image
                     os.system(f"ln -s {src_img} {dst_img}")
                     #os.system(f"cp {src_img} {dst_img}")
                     #print(f"ln -s {src_img} {dst_img}")
-                    sys.exit()
+
+        # save as */times.txt and nampes_times.txt
+        write_to_file(txt_fn= pjoin(tmp_dst_dir, '../times.txt'), 
+                        files_list= img_names_for_timeStamps)
+        write_to_file(txt_fn= pjoin(tmp_dst_dir, '../names_map.txt'), 
+                        files_list= img_names_maps
+                        )
+        #sys.exit()
+                
+                
+                
             
 
 
@@ -74,9 +114,10 @@ How to run this file:
 """
 if __name__ == "__main__":
 
-    src_data_root = Path("/media/changjiang/disk1/innopeak/data/WheatstoneData/processed/test_team/0912-2/2023-09-12-15-42-56") 
-    proj_root = Path("/home/changjiang/code/github-code-study-oppo/ORB_SLAM3/") 
     if 0:
+        src_data_root = Path("/media/changjiang/disk1/innopeak/data/WheatstoneData/processed/test_team/0912-2/2023-09-12-15-42-56") 
+        src_data_root = Path("/media/changjiang/disk1/innopeak/data/WheatstoneData/processed/test_team/0912-2/2023-09-12-15-42-56") 
+        proj_root = Path("/home/changjiang/code/github-code-study-oppo/ORB_SLAM3/") 
         prepare_data(
             ## left images
             #img_list_txtfile= src_data_root / 'left_img_list.txt',
@@ -109,5 +150,5 @@ if __name__ == "__main__":
     if 1:
         run_main(
             data_root = "/nfs/STG/SemanticDenseMapping/data/WheatstoneData_nocc/test_team/", 
-            dst_dir = "./data/WheatstoneData_nocc"
+            dst_dir = "./data/WheatstoneData_nocc/"
             )

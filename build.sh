@@ -1,40 +1,54 @@
-echo "Configuring and building Thirdparty/DBoW2 ..."
+#!/bin/bash
 
-cd Thirdparty/DBoW2
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j
+FLAG=true
+FLAG=false
+if [ $FLAG == 'true' ]; then
+    echo "Configuring and building Thirdparty/DBoW2 ..."
+    cd Thirdparty/DBoW2
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make -j8  
+    
+    echo "Configuring and building Thirdparty/g2o ..."
+    cd ../../g2o
+    #cd Thirdparty/g2o
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make -j8
+    #exit
 
-cd ../../g2o
+    #cd Thirdparty/Sophus
+    cd ../../Sophus
+    echo "Configuring and building Thirdparty/Sophus ..."
 
-echo "Configuring and building Thirdparty/g2o ..."
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make -j8
+    exit
+fi
 
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j
 
-cd ../../Sophus
 
-echo "Configuring and building Thirdparty/Sophus ..."
+FLAG=true
+FLAG=false
+if [ $FLAG == 'true' ]; then
+    echo "Uncompress vocabulary ..."
+    cd Vocabulary
+    tar -xf ORBvoc.txt.tar.gz
+    exit
+fi
 
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j
 
-cd ../../../
-
-echo "Uncompress vocabulary ..."
-
-cd Vocabulary
-tar -xf ORBvoc.txt.tar.gz
-cd ..
-
-echo "Configuring and building ORB_SLAM3 ..."
-
-mkdir build
-cd build
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j4
+FLAG=true
+#FLAG=false
+if [ $FLAG == 'true' ]; then
+    echo "Configuring and building ORB_SLAM3 ..."
+    mkdir build
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release
+    make -j8
+    exit
+fi

@@ -9,14 +9,17 @@ echo "------------------->"
 echo "------------------->"
 echo "----start building docker image ..."
 
-UBUNTU_VERSION=22.04
-NVIDIA_CUDA_VERSION=12.3.1
-#UBUNTU_VERSION=20.04
-#NVIDIA_CUDA_VERSION=11.4.3
+#UBUNTU_VERSION=22.04
+#NVIDIA_CUDA_VERSION=12.3.1
+
+## due to docker version;
+UBUNTU_VERSION=20.04
+NVIDIA_CUDA_VERSION=11.4.3
 
 USER_NAME=${1:-'ccj'}
 VER=${2:-0.1}
 DOCKER_TAG=${USER_NAME}/orbslam3-v091-dev:$VER
+PYTHON_VERSION=3.8
 
 echo "Will build docker container $DOCKER_TAG ..."
 #exit
@@ -34,6 +37,7 @@ docker build --tag $DOCKER_TAG \
     --build-arg UBUNTU_VERSION=$UBUNTU_VERSION \
     --build-arg NVIDIA_CUDA_VERSION=$NVIDIA_CUDA_VERSION \
     --build-arg USER_ID=$(id -u) \
+    --build-arg python=$PYTHON_VERSION \
     --build-arg GROUP_ID=$(id -g) \
     --build-arg USER_NAME=$USER_NAME \
     --build-arg GROUP_NAME=$(id -gn) \

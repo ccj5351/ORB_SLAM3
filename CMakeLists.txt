@@ -171,9 +171,12 @@ endif()
 #Stereo examples
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/Examples/Stereo)
 
-add_executable(stereo_wheatstone
-        Examples/Stereo/stereo_wheatstone.cc)
-target_link_libraries(stereo_wheatstone ${PROJECT_NAME})
+#---------------#
+# added by CCJ:
+add_executable(stereo_mydata
+        Examples/Stereo/stereo_mydata.cc)
+target_link_libraries(stereo_mydata ${PROJECT_NAME})
+#---------------#
 
 add_executable(stereo_kitti
         Examples/Stereo/stereo_kitti.cc)
