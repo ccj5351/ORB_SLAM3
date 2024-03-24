@@ -1,5 +1,7 @@
 # Ignore all
 *
+#Unignore Docker
+!*/Dockerfile
 
 # Unignore all with extensions
 !*.*
@@ -15,6 +17,7 @@ data
 run_*.sh
 run_*_sml.sh
 
+Examples_old/
 Examples/RGB-D/rgbd_tum
 Examples/RGB-D/rgbd_realsense_D435i
 
