@@ -11,6 +11,9 @@ CMakeLists.txt.user
 CMakeLists_modified.txt
 
 results
+data
+run_*.sh
+run_*_sml.sh
 
 Examples/RGB-D/rgbd_tum
 Examples/RGB-D/rgbd_realsense_D435i
