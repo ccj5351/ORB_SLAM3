@@ -1,0 +1,21 @@
+pyntcloud
+plyfile
+
+matplotlib>=3.5.1
+nose
+scikit-learn
+scikit-image
+opencv-python
+cython
+numpy>=1.20.0 #update due to new numpy.typing
+scipy
+Pillow>=9.0.1
+
+tqdm
+future
+timm
+h5py
+path
+ipdb
+
+
