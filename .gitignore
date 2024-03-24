@@ -2,6 +2,7 @@
 *
 #Unignore Docker
 !*/Dockerfile
+!*/bashrc_extra
 
 # Unignore all with extensions
 !*.*
