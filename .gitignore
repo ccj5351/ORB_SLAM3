@@ -10,6 +10,8 @@
 # Unignore all dirs
 !*/
 
+docker/Dockerfile_dev
+
 CMakeLists.txt.user
 CMakeLists_modified.txt
 

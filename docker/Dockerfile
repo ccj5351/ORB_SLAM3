@@ -9,17 +9,6 @@ FROM nvidia/cuda:${NVIDIA_CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
 # nvidia/cuda:11.4.3-cudnn8-devel-ubuntu20.04
 # nvidia/cuda:11.4.3-cudnn8-runtime-ubuntu20.04
 
-##------------------------------------------------
-## Newly added by CCJ due to the DGX05 machine ---
-## -- Setup proxy in docker file -----------------
-## --  when create container image ---------------
-##------------------------------------------------
-ARG http_proxy=http://172.24.206.4:3128
-ARG https_proxy=http://172.24.206.4:3128
-ENV http_proxy=http://172.24.206.4:3128
-ENV https_proxy=http://172.24.206.4:3128
-ENV no_proxy=localhost,127.0.0.1
-
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
@@ -140,8 +129,8 @@ WORKDIR /home/$USER_NAME
 ###  Personalized System initialization commands/installations (Optional)
 ##################################################
 ### Create softlinks ###
-RUN ln -s /nfs/home/us000182/code /home/${USER_NAME}/code
-RUN ln -s /nfs/home/us000182/Downloads /home/${USER_NAME}/Downloads
+#RUN ln -s /nfs/home/us000182/code /home/${USER_NAME}/code
+#RUN ln -s /nfs/home/us000182/Downloads /home/${USER_NAME}/Downloads
 
 ##################################################
 ###  Environment variable setup
